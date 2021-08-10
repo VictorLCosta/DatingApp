@@ -9,7 +9,7 @@ namespace API.Entities
         public string UserName { get; set; }
         public byte[] PasswordHash { get; set; }
         public byte[] PasswordSalt { get; set; }
-        public DateTime DateBirth { get; set; }
+        public DateTime BirthDate { get; set; }
         public string KnownAs { get; set; }
         public DateTime Created { get; set; } = DateTime.Now;
         public DateTime LastTimeActive { get; set; } = DateTime.Now;
@@ -21,5 +21,10 @@ namespace API.Entities
         public string Country { get; set; }
 
         public IEnumerable<Photo> Photos { get; set; }
+
+        public int GetAge()
+        {
+            return DateTimeExtensions.CalculateAge(BirthDate);
+        }
     }
 }
