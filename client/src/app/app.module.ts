@@ -18,6 +18,7 @@ import { ToastrModule } from 'ngx-toastr';
 import { SharedModule } from './_modules/shared.module';
 import { ErrorInterceptor } from './_interceptors/error.interceptor';
 import { NotFoundComponent } from './not-found/not-found.component';
+import { ServerErrorComponent } from './server-error/server-error.component';
 
 @NgModule({
   declarations: [
@@ -29,7 +30,8 @@ import { NotFoundComponent } from './not-found/not-found.component';
     MemberDetailsComponent,
     ListComponent,
     MessagesComponent,
-    NotFoundComponent
+    NotFoundComponent,
+    ServerErrorComponent
   ],
   imports: [
     BrowserModule,
