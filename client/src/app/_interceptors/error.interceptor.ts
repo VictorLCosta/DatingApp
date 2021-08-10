@@ -7,7 +7,6 @@ import {
 } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { error } from 'console';
 import { ToastrService } from 'ngx-toastr';
 import { NavigationExtras, Router } from '@angular/router';
 
@@ -30,7 +29,7 @@ export class ErrorInterceptor implements HttpInterceptor {
                     modalStateErrors.push(err.error.errors[key])
                   }
                 }
-                throw modalStateErrors;
+                throw modalStateErrors.flat();
               } else {
                 this.toastr.error(err.statusText, err.status);
               }
