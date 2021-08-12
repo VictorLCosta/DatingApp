@@ -7,7 +7,7 @@ namespace System
             var today = DateTime.Today;
             var age = today.Year - dob.Year;
 
-            if(dob.Date > today.AddDays(-age))
+            if(dob.Date > today.AddYears(-age))
             {
                 age--;
             }

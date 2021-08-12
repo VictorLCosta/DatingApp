@@ -6,6 +6,7 @@ using API.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using API.Helpers;
 
 namespace API.Extensions
 {
@@ -18,6 +19,8 @@ namespace API.Extensions
             #region Repositories
             services.AddTransient<IUserRepository, UserRepository>();
             #endregion
+
+            services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
 
             services.AddDbContext<DataContext>(opt => 
             {
