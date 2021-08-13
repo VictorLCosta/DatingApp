@@ -11,7 +11,6 @@ using AutoMapper;
 
 namespace API.Controllers
 {
-    
     public class UsersController : BaseApiController
     {
         private readonly IUserRepository _userRepository;
