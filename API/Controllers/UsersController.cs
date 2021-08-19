@@ -35,7 +35,7 @@ namespace API.Controllers
             return Ok(users);
         }
 
-        [HttpGet("{username}")]
+        [HttpGet("{username}", Name = "GetUser")]
         public async Task<ActionResult<MemberDTO>> GetUser(string username)
         {
             var user = await _userRepository.GetMemberAsync(username);
@@ -73,13 +73,13 @@ namespace API.Controllers
                 PublicId = result.PublicId
             };
 
-            if(user.Photos.Count > 0)
+            if(user.Photos.Count == 0)
             {
                 photo.IsMain = true;
             }
 
             user.Photos.Add(photo);
-            return _mapper.Map<PhotoDTO>(photo);
+            return CreatedAtRoute("GetUser", new { username = user.UserName },_mapper.Map<PhotoDTO>(photo));
         }
     }
 }
