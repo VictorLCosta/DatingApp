@@ -9,6 +9,8 @@ using API.Interfaces.Contracts;
 using API.DTOs;
 using AutoMapper;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
+using API.Interfaces;
 
 namespace API.Controllers
 {
@@ -17,11 +19,13 @@ namespace API.Controllers
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
+        private readonly IPhotoService _photoService;
 
-        public UsersController(IUserRepository userRepository, IMapper mapper)
+        public UsersController(IUserRepository userRepository, IMapper mapper, IPhotoService photoService)
         {
             _userRepository = userRepository;
             _mapper = mapper;
+            _photoService = photoService;
         }
 
         [HttpGet]
@@ -41,7 +45,7 @@ namespace API.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateUser(UpdateMemberDto member)
         {
-            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var username = User.GetUserName();
             var user = await _userRepository.GetByUsernameAsync(username);
 
             _mapper.Map(member, user);
@@ -49,6 +53,33 @@ namespace API.Controllers
             await _userRepository.UpdateAsync(user);
 
             return NoContent();
+        }
+
+        [HttpPost("add-photo")]
+        public async Task<ActionResult<PhotoDTO>> AddPhoto(IFormFile file) 
+        {
+            var user = await _userRepository.GetByUsernameAsync(User.GetUserName());
+
+            var result = await _photoService.AddPhotoAsync(file);
+
+            if(result.Error != null)
+            {
+                return BadRequest(result.Error.Message);
+            }
+
+            var photo = new Photo 
+            {
+                Url = result.SecureUrl.AbsoluteUri,
+                PublicId = result.PublicId
+            };
+
+            if(user.Photos.Count > 0)
+            {
+                photo.IsMain = true;
+            }
+
+            user.Photos.Add(photo);
+            return _mapper.Map<PhotoDTO>(photo);
         }
     }
 }
