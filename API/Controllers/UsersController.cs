@@ -62,24 +62,28 @@ namespace API.Controllers
 
             var result = await _photoService.AddPhotoAsync(file);
 
-            if(result.Error != null)
-            {
-                return BadRequest(result.Error.Message);
-            }
+            if (result.Error != null) return BadRequest(result.Error.Message);
 
-            var photo = new Photo 
+            var photo = new Photo
             {
                 Url = result.SecureUrl.AbsoluteUri,
                 PublicId = result.PublicId
             };
 
-            if(user.Photos.Count == 0)
+            if (user.Photos.Count == 0)
             {
                 photo.IsMain = true;
             }
 
             user.Photos.Add(photo);
-            return CreatedAtRoute("GetUser", new { username = user.UserName },_mapper.Map<PhotoDTO>(photo));
+
+            if (await _userRepository.SaveAllAsync())
+            {
+                return CreatedAtRoute("GetUser", new {username = user.UserName} ,_mapper.Map<PhotoDTO>(photo));
+            }
+
+
+            return BadRequest("Problem addding photo");
         }
 
         [HttpPut("set-main-photo/{photoId}")]
