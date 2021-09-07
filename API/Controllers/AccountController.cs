@@ -7,6 +7,7 @@ using API.DTOs;
 using API.Entities;
 using API.Interfaces;
 using API.Interfaces.Contracts;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,9 +18,11 @@ namespace API.Controllers
         private readonly DataContext _context;
         private readonly ITokenService _tokenService;
         private readonly IUserRepository _repository;
+        private readonly IMapper _mapper;
 
-        public AccountController(DataContext context, IUserRepository repository, ITokenService tokenService)
+        public AccountController(DataContext context, IUserRepository repository, ITokenService tokenService, IMapper mapper)
         {
+            _mapper = mapper;
             _repository = repository;
             _context = context;
             _tokenService = tokenService;
@@ -35,12 +38,12 @@ namespace API.Controllers
 
             using (var hmac = new HMACSHA512())
             {
-                var user = new AppUser
-                {
-                    UserName = registerDto.Username.ToLower(),
-                    PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)),
-                    PasswordSalt = hmac.Key
-                };
+                var user = _mapper.Map<AppUser>(registerDto);
+
+                user.UserName = registerDto.Username.ToLower();
+                user.PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password));
+                user.PasswordSalt = hmac.Key;
+                
 
                 await _context.users.AddAsync(user);
                 await _context.SaveChangesAsync();
@@ -71,6 +74,7 @@ namespace API.Controllers
                 return new UserDto
                 {
                     Username = user.UserName,
+                    KnownAs = user.KnownAs,
                     Token = _tokenService.CreateToken(user),
                     PhotoUrl = user.Photos.FirstOrDefault(x => x.IsMain).Url
                 };
