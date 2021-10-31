@@ -37,6 +37,7 @@ namespace API.Repositories
         public async Task<PagedList<MemberDTO>> GetAllMembersAsync(UserParams userParams)
         {
             var query = _context.users
+                .Where(x => x.UserName != userParams.CurrentUsername && x.Gender == userParams.Gender)
                 .ProjectTo<MemberDTO>(_mapper.ConfigurationProvider)
                 .AsNoTracking();
 
