@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -38,10 +39,14 @@ namespace API.Repositories
         {
             var query = _context.users
                 .Where(x => x.UserName != userParams.CurrentUsername && x.Gender == userParams.Gender)
-                .ProjectTo<MemberDTO>(_mapper.ConfigurationProvider)
                 .AsNoTracking();
 
-            return await PagedList<MemberDTO>.CreateAsync(query, userParams.PageNumber, userParams.PageSize);
+            var minDob = DateTime.Today.AddYears(-userParams.MaxAge - 1);
+            var maxDob = DateTime.Today.AddYears(-userParams.MinAge);
+
+            query = query.Where(x => x.BirthDate >= minDob && x.BirthDate <= maxDob);
+
+            return await PagedList<MemberDTO>.CreateAsync(query.ProjectTo<MemberDTO>(_mapper.ConfigurationProvider), userParams.PageNumber, userParams.PageSize);
         }
 
         public async Task<MemberDTO> GetMemberAsync(string username)
